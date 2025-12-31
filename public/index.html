@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZlagBin - Secure File & Text Hosting</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ZlagBin</h1>
+            <p class="subtitle">Secure, Encrypted File & Text Hosting</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="tabs">
+                <button class="tab active" data-tab="text">Text</button>
+                <button class="tab" data-tab="file">File</button>
+            </div>
+
+            <div class="tab-content active" id="text-tab">
+                <textarea id="text-content" placeholder="Paste your text here... (Markdown supported)"></textarea>
+                
+                <div class="options">
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="text-markdown">
+                            <span>Markdown</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="text-burn">
+                            <span>Burn after reading</span>
+                        </label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>
+                            <span>Expiry:</span>
+                            <select id="text-expiry">
+                                <option value="0">Never</option>
+                                <option value="1">1 minute</option>
+                                <option value="5">5 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="360">6 hours</option>
+                                <option value="1440">24 hours</option>
+                                <option value="10080">7 days</option>
+                            </select>
+                        </label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="text-password-toggle">
+                            <span>Password protect</span>
+                        </label>
+                        <input type="password" id="text-password" placeholder="Enter password" style="display: none;">
+                    </div>
+                </div>
+
+                <button class="upload-btn" id="text-upload-btn">
+                    <span>Upload Text</span>
+                </button>
+            </div>
+
+            <div class="tab-content" id="file-tab">
+                <div class="file-drop-zone" id="file-drop-zone">
+                    <div class="drop-zone-content">
+                        <p>Drag & drop your file here</p>
+                        <p class="or-text">or</p>
+                        <button class="browse-btn">Browse Files</button>
+                        <input type="file" id="file-input" hidden>
+                    </div>
+                    <div class="file-preview" id="file-preview" style="display: none;">
+                        <span class="file-name"></span>
+                        <span class="file-size"></span>
+                        <button class="remove-file">✕</button>
+                    </div>
+                </div>
+                
+                <div class="options">
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="file-burn">
+                            <span>Burn after reading</span>
+                        </label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>
+                            <span>Expiry:</span>
+                            <select id="file-expiry">
+                                <option value="0">Never</option>
+                                <option value="5">5 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="360">6 hours</option>
+                                <option value="1440">24 hours</option>
+                                <option value="10080">7 days</option>
+                            </select>
+                        </label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="file-password-toggle">
+                            <span>Password protect</span>
+                        </label>
+                        <input type="password" id="file-password" placeholder="Enter password" style="display: none;">
+                    </div>
+                </div>
+
+                <button class="upload-btn" id="file-upload-btn" disabled>
+                    <span>Upload File</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="result-section" id="result-section" style="display: none;">
+            <div class="result-card">
+                <h2>Upload Successful!</h2>
+                <div class="url-container">
+                    <input type="text" id="result-url" readonly>
+                    <button class="copy-btn" id="copy-btn">Copy</button>
+                </div>
+                <p class="result-info">Share this link to let others access your content</p>
+                <button class="new-upload-btn" id="new-upload-btn">Upload Another</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>All content is encrypted with AES-256-GCM</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

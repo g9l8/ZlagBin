@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content - ZlagBin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .view-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .view-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--warning);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .password-section {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .password-section h2 {
+            margin-bottom: 1rem;
+        }
+
+        .password-input-group {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .password-input-group input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .password-input-group button {
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .password-input-group button:hover {
+            background: var(--primary-dark);
+        }
+
+        .content-display {
+            margin-top: 2rem;
+        }
+
+        .text-content {
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .markdown-content {
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+            line-height: 1.8;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1rem;
+        }
+
+        .markdown-content code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .markdown-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .file-download {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .file-info {
+            margin-bottom: 2rem;
+        }
+
+        .file-info h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .download-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--danger);
+        }
+
+        .error-message h2 {
+            margin-bottom: 1rem;
+        }
+
+        .actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--dark);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .action-btn:hover {
+            background: var(--dark-lighter);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="view-container">
+        <header>
+            <h1><a href="/" style="color: white; text-decoration: none;">ZlagBin</a></h1>
+        </header>
+
+        <div class="view-card" id="view-card">
+            <div class="loading-spinner">Loading...</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>All content is encrypted with AES-256-GCM</p>
+    </footer>
+
+    <script>
+        const urlParts = window.location.pathname.split('/');
+        const contentId = urlParts[urlParts.length - 1];
+        let metadata = null;
+
+        async function loadMetadata() {
+            try {
+                const response = await fetch(`/api/view/${contentId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Content not found or expired');
+                }
+                
+                metadata = await response.json();
+                
+                if (metadata.hasPassword) {
+                    showPasswordPrompt();
+                } else {
+                    retrieveContent();
+                }
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showPasswordPrompt() {
+            const card = document.getElementById('view-card');
+            card.innerHTML = `
+                ${metadata.burnAfterRead ? '<div class="view-header"><span class="warning-badge">This content will self-destruct after viewing</span></div>' : ''}
+                <div class="password-section">
+                    <h2>Password Required</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">This content is protected with a password</p>
+                    <div class="password-input-group">
+                        <input type="password" id="password-input" placeholder="Enter password">
+                        <button onclick="retrieveContent()">Unlock</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('password-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    retrieveContent();
+                }
+            });
+        }
+
+        async function retrieveContent(password = null) {
+            try {
+                const passwordInput = document.getElementById('password-input');
+                if (passwordInput && !password) {
+                    password = passwordInput.value;
+                }
+                
+                const response = await fetch(`/api/retrieve/${contentId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    if (response.status === 401) {
+                        alert('Incorrect password');
+                    } else {
+                        throw new Error(result.error);
+                    }
+                    return;
+                }
+                
+                if (metadata.type === 'text') {
+                    showTextContent(result.content, result.isMarkdown);
+                } else {
+                    showFileDownload(result);
+                }
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showTextContent(content, isMarkdown) {
+            const card = document.getElementById('view-card');
+            
+            if (isMarkdown) {
+                const html = marked.parse(content);
+                card.innerHTML = `
+                    ${metadata.burnAfterRead ? '<div class="view-header"><span class="warning-badge">Content has been destroyed</span></div>' : ''}
+                    <div class="content-display">
+                        <div class="markdown-content">${html}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn" onclick="copyToClipboard()">Copy Text</button>
+                        <a href="/" class="action-btn">Upload New</a>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    ${metadata.burnAfterRead ? '<div class="view-header"><span class="warning-badge">Content has been destroyed</span></div>' : ''}
+                    <div class="content-display">
+                        <div class="text-content">${escapeHtml(content)}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn" onclick="copyToClipboard()">Copy Text</button>
+                        <a href="/" class="action-btn">Upload New</a>
+                    </div>
+                `;
+            }
+            
+            window.currentContent = content;
+        }
+
+        function showFileDownload(result) {
+            const card = document.getElementById('view-card');
+            card.innerHTML = `
+                ${metadata.burnAfterRead ? '<div class="view-header"><span class="warning-badge">File has been destroyed</span></div>' : ''}
+                <div class="file-download">
+                    <div class="file-info">
+                        <h2>${escapeHtml(result.filename)}</h2>
+                        <p style="color: var(--text-muted);">File is ready to download</p>
+                    </div>
+                    <button class="download-btn" onclick="downloadFile('${result.content}', '${result.filename}', '${result.mimetype}')">
+                        Download File
+                    </button>
+                </div>
+                <div class="actions">
+                    <a href="/" class="action-btn">Upload New</a>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const card = document.getElementById('view-card');
+            card.innerHTML = `
+                <div class="error-message">
+                    <h2>Error</h2>
+                    <p>${escapeHtml(message)}</p>
+                </div>
+                <div class="actions">
+                    <a href="/" class="action-btn">Go Home</a>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.currentContent).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function downloadFile(base64Content, filename, mimetype) {
+            const byteCharacters = atob(base64Content);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: mimetype });
+            
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        loadMetadata();
+    </script>
+</body>
+</html>
