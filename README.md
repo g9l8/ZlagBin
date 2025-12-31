@@ -1,6 +1,6 @@
 # ZlagBin
 
-Hey! This is a dead-simple file and text hosting app that actually gives a damn about your privacy. Everything's encrypted before it hits the server, and you can make stuff disappear after someone reads it. Pretty neat, right?
+file and text hosting app that actually gives a damn about your privacy. Everything's encrypted before it hits the server, and you can make stuff disappear after someone reads it. Pretty neat, right?
 
 ## What's Cool About It
 
